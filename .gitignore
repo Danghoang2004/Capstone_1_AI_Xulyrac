@@ -1,0 +1,8 @@
+.idea/
+__pycache__/
+dataset/
+outputs/
+*.pt
+*.onnx
+*.pth
+.env
