@@ -1,0 +1,17 @@
+path: D:\AI_XuLyBaoCaoRac\model_process\dataset
+train: images/train # train images (relative to 'path') 4 images
+val: images/val # val images (relative to 'path') 4 images
+test: # test images (optional)
+
+# Classes
+names:
+  0: Bia_carton
+  1: ChaiNhua
+  2: Chai_thuytinh
+  3: HopXop
+  4: LoThuyTinh
+  5: LonKimLoai
+  6: LyGiay
+  7: TuiNiLong
+  8: ao 
+  9: quan

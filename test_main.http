@@ -9,3 +9,20 @@ GET http://127.0.0.1:8000/hello/User
 Accept: application/json
 
 ###
+### TEST DETECT WASTE (Endpoint cũ - xác minh rác thải)
+POST http://127.0.0.1:8000/ai/detect-waste
+Content-Disposition: form-data; name="file"; filename="test.jpg"
+
+< ./path/to/test/image.jpg
+
+###
+
+### TEST CLASSIFY WASTE (Endpoint mới - phân loại rác thải)
+### Gửi 1 bức ảnh lên, hệ thống sẽ:
+### 1. Chạy model trainphanloai để phân loại rác
+### 2. Trả về ảnh với Vietnamese labels
+### 3. Trả về danh sách rác thải được phân loại
+POST http://127.0.0.1:8000/ai/classify-waste
+Content-Disposition: form-data; name="file"; filename="waste.jpg"
+
+< ./path/to/test/image.jpg

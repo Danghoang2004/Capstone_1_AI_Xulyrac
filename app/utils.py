@@ -1,11 +1,29 @@
 from collections import defaultdict
-
-
-CONF_THRESHOLD = 0.6
+from app.config import (
+    CONF_THRESHOLD, 
+    WASTE_VERIFY_MAPPING_VIETNAMESE, 
+    WASTE_CLASSIFICATION_MAPPING_VIETNAMESE
+)
 
 
 def filter_valid_detections(detections):
     return [d for d in detections if d["confidence"] >= CONF_THRESHOLD]
+
+
+def translate_class_name(class_name: str, use_classification: bool = False) -> str:
+    """
+    Dịch tên class thô sang tiếng Việt
+    
+    Args:
+        class_name: Tên class gốc
+        use_classification: 
+            - False: dùng mapping cho xác minh (train5)
+            - True: dùng mapping cho phân loại (trainphanloai)
+    """
+    if use_classification:
+        return WASTE_CLASSIFICATION_MAPPING_VIETNAMESE.get(class_name, class_name)
+    else:
+        return WASTE_VERIFY_MAPPING_VIETNAMESE.get(class_name, class_name)
 
 
 def calculate_type_percentage(valid_detections):
