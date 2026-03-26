@@ -1,5 +1,5 @@
 from collections import defaultdict
-from app.config import (
+from app.config.config import (
     CONF_THRESHOLD, 
     WASTE_VERIFY_MAPPING_VIETNAMESE, 
     WASTE_CLASSIFICATION_MAPPING_VIETNAMESE

@@ -1,13 +1,13 @@
 import os
 import cv2
 from ultralytics import YOLO
-from app.utils import (
+from app.service.yolo_service.utils import (
     filter_valid_detections,
     calculate_type_percentage,
     calculate_overall_confidence,
     translate_class_name
 )
-from app.config import MODEL_DETECT_PATH, MODEL_CLASSIFY_PATH
+from app.config.config import MODEL_DETECT_PATH, MODEL_CLASSIFY_PATH
 
 # Load detection model (train5) for waste verification
 detection_model = YOLO(MODEL_DETECT_PATH)
