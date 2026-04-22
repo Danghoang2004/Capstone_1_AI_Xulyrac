@@ -39,4 +39,4 @@ YAML_DETECT_PATH = r"mydata.yaml"  # Cho xác minh rác
 YAML_CLASSIFY_PATH = r"mydata_phanloai.yaml"  # Cho phân loại rác
 
 # Confidence threshold
-CONF_THRESHOLD = 0.2
+CONF_THRESHOLD = 0.6
