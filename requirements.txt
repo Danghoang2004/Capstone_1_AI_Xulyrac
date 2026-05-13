@@ -4,5 +4,5 @@ python-multipart==0.0.22
 pydantic==2.12.5
 ultralytics==8.4.27
 opencv-python==4.13.0.92
-numpy==1.26.4
+numpy==2.2.6
 PyYAML==6.0.3
