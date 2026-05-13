@@ -44,7 +44,7 @@ class PredictHotspotRequest(BaseModel):
     grid_size_m: int = Field(default=200, ge=50, le=1000)
     top_percent: float = Field(default=0.1, gt=0.0, le=1.0)
     min_predicted_count: int = Field(default=3, ge=1)
-    dbscan_eps_km: float = Field(default=0.35, gt=0)
+    dbscan_eps_km: float = Field(default=0.5, gt=0)
     dbscan_min_samples: int = Field(default=2, ge=1)
 
 

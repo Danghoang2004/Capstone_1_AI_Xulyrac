@@ -57,7 +57,7 @@ async def detect_waste(file: UploadFile = File(...)):
     ai_result = run_detection(raw_path)
 
     output_image = None
-    if ai_result["is_waste"]:
+    if ai_result.get("detections") and ai_result.get("ai_decision") != "NOT_WASTE":
         draw_boxes(raw_path, ai_result["detections"], analyzed_path)
         output_image = analyzed_path
 
@@ -65,7 +65,27 @@ async def detect_waste(file: UploadFile = File(...)):
         "success": True,
         "data": {
             **ai_result,
-            "output_image": output_image
+            "output_image": output_image,
+            "detected_items": ai_result.get("detected_items", []),
+            "object_confidence_score": ai_result.get("object_confidence_score", 0.0),
+            "waste_context_score": ai_result.get("waste_context_score", 0.0),
+            "final_waste_score": ai_result.get("final_waste_score", 0.0),
+            "waste_area_ratio": ai_result.get("waste_area_ratio", 0.0),
+            "object_count": ai_result.get("object_count", 0),
+            "severity_score": ai_result.get("severity_score"),
+            "pollution_level": ai_result.get("pollution_level", "UNCONFIRMED"),
+            "severity_description": ai_result.get("severity_description"),
+            "recommendation": ai_result.get("recommendation"),
+            "ai_decision": ai_result.get("ai_decision", "NOT_WASTE"),
+            "report_status": ai_result.get("report_status", "REQUEST_REUPLOAD"),
+            "need_manual_review": ai_result.get("need_manual_review", False),
+            "error_message": ai_result.get("error_message"),
+            "image_quality_score": ai_result.get("image_quality_score", 0.0),
+            "object_count_score": ai_result.get("object_count_score", 0.0),
+            "waste_area_score": ai_result.get("waste_area_score", 0.0),
+            "waste_diversity_score": ai_result.get("waste_diversity_score", 0.0),
+            "scene_context_score": ai_result.get("scene_context_score", 0.0),
+            "discarded_sign_score": ai_result.get("discarded_sign_score", 0.0)
         }
     }
 
@@ -75,7 +95,7 @@ async def classify_waste(file: UploadFile = File(...)):
     """
     Endpoint để phân loại rác thải
     - Nhận ảnh từ người dùng
-    - Chạy model trainphanloai để nhận diện và phân loại
+    - Chạy model train5 để nhận diện và phân loại
     - Trả về ảnh được vẽ boxes với Vietnamese labels
     - Trả về danh sách các loại rác thải được phân loại
     """

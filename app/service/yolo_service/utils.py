@@ -18,7 +18,7 @@ def translate_class_name(class_name: str, use_classification: bool = False) -> s
         class_name: Tên class gốc
         use_classification: 
             - False: dùng mapping cho xác minh (train5)
-            - True: dùng mapping cho phân loại (trainphanloai)
+            - True: dùng mapping cho phân loại (legacy mapping)
     """
     if use_classification:
         return WASTE_CLASSIFICATION_MAPPING_VIETNAMESE.get(class_name, class_name)
