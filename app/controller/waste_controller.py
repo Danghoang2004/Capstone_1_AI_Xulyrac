@@ -26,13 +26,31 @@ from app.service.yolo_service.yolo_service import (
     draw_classification_boxes
 )
 
-app = FastAPI()
+app = FastAPI(title="EcoTrack AI Service", version="1.0.0")
 
 RAW_DIR = "outputs/raw"
 ANALYZED_DIR = "outputs/analyzed"
 
 os.makedirs(RAW_DIR, exist_ok=True)
 os.makedirs(ANALYZED_DIR, exist_ok=True)
+
+
+@app.get("/")
+async def root():
+    """Health check endpoint"""
+    return {
+        "status": "ok",
+        "service": "EcoTrack AI Service",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "endpoints": {
+            "health": "/",
+            "detect_waste": "/ai/detect-waste",
+            "classify_waste": "/ai/classify-waste",
+            "cluster_hotspots": "/ai/cluster-hotspots",
+            "predict_hotspots": "/ai/predict-hotspots"
+        }
+    }
 
 
 @app.post("/ai/cluster-hotspots", response_model=ClusterHotspotResponse)
