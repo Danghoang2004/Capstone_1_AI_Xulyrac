@@ -8,6 +8,7 @@ from app.service.yolo_service.utils import (
     calculate_overall_confidence,
     translate_class_name
 )
+from app.service.yolo_service.coco_mapping import translate_coco_class_name
 from app.config.config import MODEL_DETECT_PATH, MODEL_CLASSIFY_PATH, MODEL_COCO_PATH
 
 # Load detection model (train5) for waste verification
@@ -129,6 +130,11 @@ RECOMMENDATION_TEMPLATES = {
     "MIXED_WASTE": "Rác hỗn hợp nên được phân loại thành nhóm có thể tái chế và không thể tái chế trước khi xử lý.",
     "UNKNOWN": "Ảnh chưa đủ rõ để đưa ra gợi ý xử lý chính xác. Vui lòng chụp lại ảnh rõ hơn, đủ sáng và có bối cảnh xung quanh.",
 }
+
+
+def _translate_coco_detections_to_vietnamese(coco_detections: List[Dict]) -> List[str]:
+    """Dịch danh sách COCO detected items sang tiếng Việt"""
+    return [translate_coco_class_name(d["class_name"]) for d in coco_detections]
 
 
 def _is_waste_related_class(class_name: str) -> bool:
@@ -411,7 +417,7 @@ def _analyze_detections(image_path: str, detections: List[Dict]) -> Dict:
             "image_quality_score": image_quality_score,
             "false_positive_reason": None,
             "model_a_has_general_object": has_general_object_context,
-            "model_a_detected_items": [d["class_name"] for d in coco_detections],
+            "model_a_detected_items": _translate_coco_detections_to_vietnamese(coco_detections),
             "model_a_reason": general_object_reason,
             "model_b_detected_items": detected_items,
             "final_waste_decision": "REQUEST_REUPLOAD",
@@ -450,13 +456,13 @@ def _analyze_detections(image_path: str, detections: List[Dict]) -> Dict:
             "image_quality_score": image_quality_score,
             "false_positive_reason": general_object_reason or None,
             "model_a_has_general_object": has_general_object_context,
-            "model_a_detected_items": [d["class_name"] for d in coco_detections],
+            "model_a_detected_items": _translate_coco_detections_to_vietnamese(coco_detections),
             "model_a_reason": general_object_reason,
             "model_b_detected_items": detected_items,
             "final_waste_decision": final_report_status,
         }
 
-    # === BƯỚC 4: Tính toán điểm số rác ===
+    # === BƯỚC 4: Tính toán điểm số rác ====
     object_confidence_score = round(
         sum(d["confidence"] for d in valid_waste_detections) / max(object_count, 1),
         2,
@@ -563,7 +569,7 @@ def _analyze_detections(image_path: str, detections: List[Dict]) -> Dict:
         "discarded_sign_score": discarded_sign_score,
         "false_positive_reason": None,
         "model_a_has_general_object": has_general_object_context,
-        "model_a_detected_items": [d["class_name"] for d in coco_detections],
+        "model_a_detected_items": _translate_coco_detections_to_vietnamese(coco_detections),
         "model_a_reason": general_object_reason,
         "model_b_detected_items": detected_items,
         "final_waste_decision": report_status,

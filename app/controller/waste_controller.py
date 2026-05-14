@@ -111,11 +111,13 @@ async def detect_waste(file: UploadFile = File(...)):
 @app.post("/ai/classify-waste")
 async def classify_waste(file: UploadFile = File(...)):
     """
-    Endpoint để phân loại rác thải
+    Endpoint để phân loại rác thải (Full Pipeline: Model A + Model B + Analysis)
     - Nhận ảnh từ người dùng
-    - Chạy model train5 để nhận diện và phân loại
+    - Chạy Model A (COCO) để phát hiện vật dụng context
+    - Chạy Model B (train5) để phát hiện rác
+    - Phân tích kết hợp 2 model
+    - Tính toán pollution level, severity score
     - Trả về ảnh được vẽ boxes với Vietnamese labels
-    - Trả về danh sách các loại rác thải được phân loại
     """
     file_id = str(uuid.uuid4())
     raw_path = f"{RAW_DIR}/{file_id}.jpg"
@@ -124,35 +126,47 @@ async def classify_waste(file: UploadFile = File(...)):
     with open(raw_path, "wb") as f:
         f.write(await file.read())
 
-    # Chạy classification model
-    classification_result = run_waste_classification(raw_path)
+    # Chạy full detection pipeline (Model A + Model B + Analysis)
+    ai_result = run_detection(raw_path)
 
     output_image = None
-    if classification_result["is_trash"]:
-        # Vẽ boxes với Vietnamese labels
-        draw_classification_boxes(
-            raw_path, 
-            classification_result["detections"], 
-            analyzed_path
-        )
+    if ai_result.get("detections") and ai_result.get("ai_decision") != "NOT_WASTE":
+        draw_boxes(raw_path, ai_result["detections"], analyzed_path)
         output_image = analyzed_path
 
     return {
         "success": True,
         "data": {
-            "is_trash": classification_result["is_trash"],
-            "overall_confidence": classification_result["overall_confidence"],
-            "total_objects_detected": classification_result["total_objects_detected"],
-            "waste_types": classification_result["type_percentage"],  # Tiếng Việt
-            "detections": [
-                {
-                    "class_name_vietnamese": d["class_name_vietnamese"],
-                    "class_name_raw": d["class_name"],
-                    "confidence": d["confidence"],
-                    "bbox": d["bbox"]
-                }
-                for d in classification_result["detections"]
-            ],
+            "is_waste": ai_result["is_waste"],
+            "overall_confidence": ai_result.get("overall_confidence", 0.0),
+            "model_a_has_general_object": ai_result.get("model_a_has_general_object", False),
+            "model_a_detected_items": ai_result.get("model_a_detected_items", []),
+            "model_a_reason": ai_result.get("model_a_reason", ""),
+            "model_b_detected_items": ai_result.get("model_b_detected_items", []),
+            "final_waste_decision": ai_result.get("final_waste_decision"),
+            "object_confidence_score": ai_result.get("object_confidence_score", 0.0),
+            "waste_context_score": ai_result.get("waste_context_score", 0.0),
+            "final_waste_score": ai_result.get("final_waste_score", 0.0),
+            "waste_area_ratio": ai_result.get("waste_area_ratio", 0.0),
+            "object_count": ai_result.get("object_count", 0),
+            "severity_score": ai_result.get("severity_score"),
+            "pollution_level": ai_result.get("pollution_level", "UNCONFIRMED"),
+            "severity_description": ai_result.get("severity_description"),
+            "recommendation": ai_result.get("recommendation"),
+            "ai_decision": ai_result.get("ai_decision", "NOT_WASTE"),
+            "report_status": ai_result.get("report_status", "REQUEST_REUPLOAD"),
+            "need_manual_review": ai_result.get("need_manual_review", False),
+            "error_message": ai_result.get("error_message"),
+            "detected_items": ai_result.get("detected_items", []),
+            "image_quality_score": ai_result.get("image_quality_score", 0.0),
+            "object_count_score": ai_result.get("object_count_score", 0.0),
+            "waste_area_score": ai_result.get("waste_area_score", 0.0),
+            "waste_diversity_score": ai_result.get("waste_diversity_score", 0.0),
+            "scene_context_score": ai_result.get("scene_context_score", 0.0),
+            "discarded_sign_score": ai_result.get("discarded_sign_score", 0.0),
+            "total_objects_detected": len(ai_result.get("detections", [])),
+            "type_percentage": ai_result.get("type_percentage", {}),
+            "detections": ai_result.get("detections", []),
             "output_image": output_image
         }
     }
